@@ -57,7 +57,8 @@ fi
 unset CUDA_ENV_PREFIX CUDA_SAVED_CUDA_HOME CUDA_SAVED_CUDA_PATH CUDA_SAVED_LD_LIBRARY_PATH
 SH
 
-pip install --index-url https://download.pytorch.org/whl/cu128 torch==2.7.1 numpy==2.2.6
+pip install --index-url https://download.pytorch.org/whl/cu128 torch==2.7.1
+pip install numpy==2.2.6
 pip install -r requirements.txt
 pip install diffrp-nvdiffrast --no-cache-dir
 
