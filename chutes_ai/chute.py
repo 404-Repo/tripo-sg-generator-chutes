@@ -108,8 +108,7 @@ def run_triposg(self,
 #@chute.cord(public_api_path="/generate", method="POST", input_schema=PipeInput)
 async def generate_mesh(self, data: PipeInput) -> MeshOutput:
     seed = random.randint(0, 10000)
-    image = Image.open(data.image_path)
-    mesh, exec_time = run_triposg(self, image=image, seed=seed, faces=data.num_faces)
+    mesh, exec_time = run_triposg(self, image_input=data.image_path, seed=seed, faces=data.num_faces)
 
     buffer = io.BytesIO()
     mesh.export(buffer)
