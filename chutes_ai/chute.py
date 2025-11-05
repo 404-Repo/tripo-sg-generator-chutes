@@ -79,7 +79,7 @@ def simplify_mesh(mesh: trimesh.Trimesh, n_faces):
         return mesh
 
 @torch.no_grad()
-async def run_triposg(self,
+def run_triposg(self,
     image_input: Union[str, Image.Image],
     seed: int,
     num_inference_steps: int = 50,
@@ -105,11 +105,11 @@ async def run_triposg(self,
 
     return mesh, total_time
 
-@chute.cord(public_api_path="/generate", method="POST", input_schema=PipeInput)
+#@chute.cord(public_api_path="/generate", method="POST", input_schema=PipeInput)
 async def generate_mesh(self, data: PipeInput) -> MeshOutput:
     seed = random.randint(0, 10000)
     image = Image.open(data.image_path)
-    mesh, exec_time = await self.run_triposg(image=image, seed=seed, faces=data.num_faces)
+    mesh, exec_time = run_triposg(self, image=image, seed=seed, faces=data.num_faces)
 
     buffer = io.BytesIO()
     mesh.export(buffer)
