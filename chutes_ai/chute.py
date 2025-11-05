@@ -19,8 +19,8 @@ from chutes.chute import Chute, NodeSelector
 from triposg.image_process import prepare_image
 from triposg.briarmbg import BriaRMBG
 from triposg.pipelines.pipeline_triposg import TripoSGPipeline
-from chutes_ai.chute_docker import chute_docker_image
-from chutes_ai.chute_io_data_structures import PipeInput, MeshOutput
+from chute_docker import chute_docker_image
+from chute_io_data_structures import PipeInput, MeshOutput
 
 
 # creating chute
