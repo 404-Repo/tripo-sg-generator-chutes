@@ -112,6 +112,7 @@ async def generate_mesh(self, data: PipeInput) -> MeshOutput:
 
     buffer = io.BytesIO()
     mesh.export(file_obj=buffer, file_type="glb")
+    # mesh.export("./model.glb")
     buffer.seek(0)
 
     return MeshOutput(
@@ -122,6 +123,6 @@ async def generate_mesh(self, data: PipeInput) -> MeshOutput:
 if __name__ == "__main__":
     async def test_locally():
         await load_model(chute)
-        result = await generate_mesh(chute, PipeInput(image_path="/workspace/3148935_image_prompt.png", num_faces=-1))
+        result = await generate_mesh(chute, PipeInput(image_path="/home/teshate/Downloads/a_baby_penguin.jpg", num_faces=-1))
 
     asyncio.run(test_locally())
