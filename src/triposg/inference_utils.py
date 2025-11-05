@@ -125,7 +125,7 @@ def parallel_zoom(occupancy_grid, scale_factor):
 
 
 @torch.no_grad()
-def hierarchical_extract_geometry(geometric_func: Callable,
+def hierarchical_extract_geometry(geometric_func,
                      device: torch.device,
                      bounds: Union[Tuple[float], List[float], float] = (-1.25, -1.25, -1.25, 1.25, 1.25, 1.25),
                      dense_octree_depth: int = 8,
