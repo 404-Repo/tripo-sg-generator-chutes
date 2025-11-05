@@ -43,20 +43,20 @@ chute = Chute(
 async def load_model(self):
     self.device = "cuda" if torch.cuda.is_available() else "cpu"
 
-    triposg_path = Path("./app/models/TripoSG")
+    triposg_path = Path("app/TripoSG")
     triposg_path.mkdir(parents=True, exist_ok=True)
-    rmbg_path = Path("./app/models/RMBG-1.4")
+    rmbg_path = Path("app/RMBG-1.4")
     rmbg_path.mkdir(parents=True, exist_ok=True)
 
     snapshot_download(repo_id="VAST-AI/TripoSG", local_dir=triposg_path.as_posix())
     snapshot_download(repo_id="briaai/RMBG-1.4", local_dir=rmbg_path.as_posix())
 
     # init rmbg model for background removal
-    self.rmbg_net = BriaRMBG.from_pretrained("/app/models/RMBG-1.4").to(self.device)
+    self.rmbg_net = BriaRMBG.from_pretrained(rmbg_path.as_posix()).to(self.device)
     self.rmbg_net.eval()
 
     # init tripoSG pipeline
-    self.pipe = TripoSGPipeline.from_pretrained("/app/models/TripoSG").to(self.device, torch.float16)
+    self.pipe = TripoSGPipeline.from_pretrained(triposg_path.as_posix()).to(self.device, torch.float16)
 
 def mesh_to_pymesh(vertices, faces):
     mesh = pymeshlab.Mesh(vertex_matrix=vertices, face_matrix=faces)
@@ -123,6 +123,6 @@ async def generate_mesh(self, data: PipeInput) -> MeshOutput:
 if __name__ == "__main__":
     async def test_locally():
         await load_model(chute)
-        result = await generate_mesh(chute, PipeInput(image_path="/home/teshate/Downloads/a_baby_penguin.jpg", num_faces=-1))
+        result = await generate_mesh(chute, PipeInput(image_path="/workspace/3148935_image_prompt.png", num_faces=-1))
 
     asyncio.run(test_locally())
