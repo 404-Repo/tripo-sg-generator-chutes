@@ -57,6 +57,14 @@ fi
 unset CUDA_ENV_PREFIX CUDA_SAVED_CUDA_HOME CUDA_SAVED_CUDA_PATH CUDA_SAVED_LD_LIBRARY_PATH
 SH
 
+CC=$CONDA_PREFIX/bin/x86_64-conda-linux-gnu-gcc
+CXX=$CONDA_PREFIX/bin/x86_64-conda-linux-gnu-g++
+CUDA_HOME=$CONDA_PREFIX
+PATH=$CONDA_PREFIX/bin:$PATH
+PATH="$CUDA_HOME/bin:$PATH"
+CPATH="$CONDA_PREFIX/targets/x86_64-linux/include:$CONDA_PREFIX/include"
+LD_LIBRARY_PATH="$CONDA_PREFIX/targets/x86_64-linux/lib:$CONDA_PREFIX/lib"
+
 pip install --index-url https://download.pytorch.org/whl/cu128 torch==2.7.1
 pip install numpy==2.2.6
 pip install -r requirements.txt
