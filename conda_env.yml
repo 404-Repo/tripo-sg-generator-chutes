@@ -14,5 +14,3 @@ dependencies:
   - gcc_linux-64=14.2.0
   - cuda-toolkit=12.8
   - ninja=1.13.0
-  - pip:
-      - -r requirements.txt

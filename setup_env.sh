@@ -58,7 +58,7 @@ unset CUDA_ENV_PREFIX CUDA_SAVED_CUDA_HOME CUDA_SAVED_CUDA_PATH CUDA_SAVED_LD_LI
 SH
 
 pip install --index-url https://download.pytorch.org/whl/cu128 torch==2.7.1
-#pip install diso==0.1.4 --no-cache-dir
+pip install -r requirements.txt
 pip install diffrp-nvdiffrast --no-cache-dir
 
 # Store the path of the Conda interpreter
