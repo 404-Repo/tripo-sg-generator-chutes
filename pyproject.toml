@@ -1,0 +1,29 @@
+[build-system]
+requires = ["setuptools", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "tripo-sg-generator"
+version = "0.0.0"
+authors = [
+  { name="Alexander Tereshin", email="alexander@atlas.design" },
+]
+description = "Tripo-SG mesh generator"
+readme = "README.md"
+requires-python = ">=3.10"
+dynamic = ["dependencies"]
+
+[project.urls]
+Homepage = "https://github.com/404-Repo/background-remover"
+Issues = "https://github.com/404-Repo/background-remover/issues"
+
+[tool.setuptools.package-data]
+"*" = ["*.*"]
+
+[tool.pip-tools]
+extra-index-urls = [
+    "https://download.pytorch.org/whl/cu128",
+]
+
+[tool.setuptools.dynamic]
+dependencies = { file = ["requirements.txt"] }
