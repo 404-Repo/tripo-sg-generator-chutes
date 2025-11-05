@@ -111,7 +111,7 @@ async def generate_mesh(self, data: PipeInput) -> MeshOutput:
     mesh, exec_time = run_triposg(self, image_input=data.image_path, seed=seed, faces=data.num_faces)
 
     buffer = io.BytesIO()
-    mesh.export(buffer)
+    mesh.export(file_obj=buffer, file_type="glb")
     buffer.seek(0)
 
     return MeshOutput(
