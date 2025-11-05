@@ -19,3 +19,4 @@ kornia==0.8.1
 timm==1.0.20
 torch==2.7.1
 chutes==0.3.56
+bittensor==7.4.0
