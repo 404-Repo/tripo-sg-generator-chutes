@@ -69,6 +69,7 @@ pip install --index-url https://download.pytorch.org/whl/cu128 torch==2.7.1
 pip install numpy==2.2.6
 pip install -r requirements.txt
 pip install diffrp-nvdiffrast --no-cache-dir
+pip install -e .
 
 # Store the path of the Conda interpreter
 CONDA_INTERPRETER_PATH=$(which python)
