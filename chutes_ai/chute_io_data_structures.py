@@ -13,5 +13,4 @@ class PipeInput(BaseModel):
         return v.strip()
 
 class MeshOutput(BaseModel):
-    mesh: io.BytesIO
-    model_config = ConfigDict(arbitrary_types_allowed=True)
+    mesh: bytes
