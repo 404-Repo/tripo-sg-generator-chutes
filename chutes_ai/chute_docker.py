@@ -13,7 +13,7 @@ class ChuteDockerImage:
             # installing python packages
             .run_command("rm /usr/lib/python3*/EXTERNALLY-MANAGED")
 
-            .run_command("ln -sf /usr/bin/pip3 /usr/local/bin/pip")
+            .run_command("ln -sf /usr/bin/pip3 /usr/local/bin/pip && ln -s /usr/bin/python3 /usr/bin/python")
             .run_command("pip install torch==2.7.1 torchvision --index-url https://download.pytorch.org/whl/cu128")
             .run_command("CPATH='/usr/local/cuda/include:$CPATH' pip3 install diso==0.1.4")
             .run_command("pip install git+https://github.com/404-Repo/tripo-sg-generator-chutes.git")
