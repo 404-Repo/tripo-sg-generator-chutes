@@ -4,10 +4,12 @@ import random
 import io
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 import asyncio
-from typing import Any, Union
+import aiohttp
+from typing import Optional, Union
 from PIL import Image
 from time import time
 from pathlib import Path
+import time
 
 import torch
 import numpy as np
@@ -25,21 +27,21 @@ from chute_io_data_structures import PipeInput, MeshOutput
 
 # creating chute
 chute = Chute(
-    username="user",
-    name="tripo-sg-generator",
+    username="", # enter here your account name with chutes
+    name="triposg-generator",
     image=chute_docker_image,
     tagline="Tripo-SG 3D mesh AI generator",
     readme="""""",
     node_selector=NodeSelector(
         gpu_count=1,
         min_vram_gb_per_gpu=24,
-        include=["rtx4090"],
+        include=["rtx4090", "rtx5090"],
     ),
     concurrency=1
 )
 
 # initializing and downloading models
-# @chute.on_startup()
+@chute.on_startup()
 async def load_model(self):
     self.device = "cuda" if torch.cuda.is_available() else "cpu"
 
@@ -105,7 +107,7 @@ def run_triposg(self,
 
     return mesh, total_time
 
-#@chute.cord(public_api_path="/generate", method="POST", input_schema=PipeInput)
+@chute.cord(public_api_path="/generate", method="POST", input_schema=PipeInput)
 async def generate_mesh(self, data: PipeInput) -> MeshOutput:
     seed = random.randint(0, 10000)
     mesh, exec_time = run_triposg(self, image_input=data.image_path, seed=seed, faces=data.num_faces)
@@ -120,9 +122,6 @@ async def generate_mesh(self, data: PipeInput) -> MeshOutput:
     )
 
 
-if __name__ == "__main__":
-    async def test_locally():
-        await load_model(chute)
-        result = await generate_mesh(chute, PipeInput(image_path="/home/teshate/Downloads/a_baby_penguin.jpg", num_faces=-1))
-
-    asyncio.run(test_locally())
+# if __name__ == "__main__":
+#     asyncio.run(load_model(chute))
+#     asyncio.run(generate_mesh(chute, PipeInput(image_path="/home/teshate/Downloads/a_baby_penguin.jpg", num_faces=-1)))
