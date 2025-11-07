@@ -70,6 +70,7 @@ pip install numpy==2.2.6
 pip install -r requirements.txt
 pip install diffrp-nvdiffrast --no-cache-dir
 pip install -e .
+pip install chutes
 
 # Store the path of the Conda interpreter
 CONDA_INTERPRETER_PATH=$(which python)
