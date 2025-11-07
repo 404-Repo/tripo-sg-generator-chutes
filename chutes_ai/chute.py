@@ -21,16 +21,29 @@ from chutes.chute import Chute, NodeSelector
 from triposg.image_process import prepare_image
 from triposg.briarmbg import BriaRMBG
 from triposg.pipelines.pipeline_triposg import TripoSGPipeline
-from chute_docker import chute_docker_image
+from chute_docker import ChuteDockerImage
 from chute_io_data_structures import PipeInput, MeshOutput
 
 
 # creating chute
+chute_user_name = "" # enter here your account name with chutes
+docker_image_name = "tripo-sg-mesh-generator"
+tag = "0.0"
+chute_name = "triposg-generator"
+chute_tagline = "Tripo-SG 3D mesh AI generator"
+
+
+chute_docker_container = ChuteDockerImage(
+    username=chute_user_name,
+    docker_image_name= docker_image_name,
+    tag=tag
+)
+
 chute = Chute(
-    username="", # enter here your account name with chutes
-    name="triposg-generator",
-    image=chute_docker_image,
-    tagline="Tripo-SG 3D mesh AI generator",
+    username=chute_user_name,
+    name=chute_name,
+    image=chute_docker_container.chute_docker_image,
+    tagline=chute_tagline,
     readme="""""",
     node_selector=NodeSelector(
         gpu_count=1,
@@ -118,7 +131,7 @@ async def generate_mesh(self, data: PipeInput) -> MeshOutput:
     buffer.seek(0)
 
     return MeshOutput(
-        mesh=buffer
+        mesh=buffer.read()
     )
 
 
