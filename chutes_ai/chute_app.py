@@ -4,12 +4,9 @@ import random
 import io
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 import asyncio
-import aiohttp
-from typing import Optional, Union
-from PIL import Image
-from time import time
+import requests
 from pathlib import Path
-import time
+from time import time
 
 import torch
 import numpy as np
@@ -26,9 +23,9 @@ from chute_io_data_structures import PipeInput, MeshOutput
 
 
 # creating chute
-chute_user_name = "" # enter here your account name with chutes
+chute_user_name = "GENAG404" # enter here your account name with chutes
 docker_image_name = "tripo-sg-mesh-generator"
-tag = "0.0"
+tag = "0.1.0"
 chute_name = "triposg-generator"
 chute_tagline = "Tripo-SG 3D mesh AI generator"
 
@@ -43,12 +40,12 @@ chute = Chute(
     username=chute_user_name,
     name=chute_name,
     image=chute_docker_container.chute_docker_image,
+    # image= "",
     tagline=chute_tagline,
     readme="""""",
     node_selector=NodeSelector(
         gpu_count=1,
-        min_vram_gb_per_gpu=24,
-        include=["rtx4090", "rtx5090"],
+        min_vram_gb_per_gpu=24
     ),
     concurrency=1
 )
@@ -95,7 +92,7 @@ def simplify_mesh(mesh: trimesh.Trimesh, n_faces):
 
 @torch.no_grad()
 def run_triposg(self,
-    image_input: Union[str, Image.Image],
+    image_input: str,
     seed: int,
     num_inference_steps: int = 50,
     guidance_scale: float = 7.0,
@@ -103,7 +100,11 @@ def run_triposg(self,
 ) -> tuple[trimesh.Trimesh, float]:
 
     t1 = time()
-    img_pil = prepare_image(image_input, bg_color=np.array([1.0, 1.0, 1.0]), rmbg_net=self.rmbg_net)
+
+    response = requests.get(image_input)
+    image_bytes = np.asarray(bytearray(response.content), dtype=np.uint8)
+
+    img_pil = prepare_image(image_bytes, bg_color=np.array([1.0, 1.0, 1.0]), rmbg_net=self.rmbg_net)
 
     outputs = self.pipe(
         image=img_pil,
@@ -137,4 +138,9 @@ async def generate_mesh(self, data: PipeInput) -> MeshOutput:
 
 # if __name__ == "__main__":
 #     asyncio.run(load_model(chute))
-#     asyncio.run(generate_mesh(chute, PipeInput(image_path="/home/teshate/Downloads/a_baby_penguin.jpg", num_faces=-1)))
+#     asyncio.run(generate_mesh(
+#         chute,
+#         PipeInput(
+#             image_path="https://3d-arena-images.b-cdn.net/A_rhino_beetle_this_size_of_a_tank_grapples_a_real_life_passenger_airplane_on_the_tarmac.jpg",
+#             num_faces=-1)
+#     ))
