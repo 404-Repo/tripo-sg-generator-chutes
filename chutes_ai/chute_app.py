@@ -3,7 +3,6 @@ import sys
 import random
 import io
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
-import asyncio
 import requests
 from pathlib import Path
 from time import time
@@ -14,6 +13,8 @@ import trimesh
 import pymeshlab
 from huggingface_hub import snapshot_download
 from chutes.chute import Chute, NodeSelector
+from loguru import logger
+from fastapi.responses import StreamingResponse
 
 from triposg.image_process import prepare_image
 from triposg.briarmbg import BriaRMBG
@@ -23,9 +24,9 @@ from chute_io_data_structures import PipeInput, MeshOutput
 
 
 # creating chute
-chute_user_name = "GENAG404" # enter here your account name with chutes
+chute_user_name = "" # enter here your account name with chutes
 docker_image_name = "tripo-sg-mesh-generator"
-tag = "0.1.0"
+tag = "0.0"
 chute_name = "triposg-generator"
 chute_tagline = "Tripo-SG 3D mesh AI generator"
 
@@ -35,6 +36,7 @@ chute_docker_container = ChuteDockerImage(
     docker_image_name= docker_image_name,
     tag=tag
 )
+
 
 chute = Chute(
     username=chute_user_name,
@@ -50,10 +52,12 @@ chute = Chute(
     concurrency=1
 )
 
+
 # initializing and downloading models
 @chute.on_startup()
 async def load_model(self):
-    self.device = "cuda" if torch.cuda.is_available() else "cpu"
+    logger.info("Loading pipelines & models ...")
+    chute.device = "cuda" if torch.cuda.is_available() else "cpu"
 
     triposg_path = Path("app/TripoSG")
     triposg_path.mkdir(parents=True, exist_ok=True)
@@ -69,6 +73,9 @@ async def load_model(self):
 
     # init tripoSG pipeline
     self.pipe = TripoSGPipeline.from_pretrained(triposg_path.as_posix()).to(self.device, torch.float16)
+    logger.info("Done.")
+    logger.info("Ready to accept tasks!")
+
 
 def mesh_to_pymesh(vertices, faces):
     mesh = pymeshlab.Mesh(vertex_matrix=vertices, face_matrix=faces)
@@ -76,10 +83,12 @@ def mesh_to_pymesh(vertices, faces):
     ms.add_mesh(mesh)
     return ms
 
+
 def pymesh_to_trimesh(mesh):
     verts = mesh.vertex_matrix()
     faces = mesh.face_matrix()
     return trimesh.Trimesh(vertices=verts, faces=faces)  #, vID, fID
+
 
 def simplify_mesh(mesh: trimesh.Trimesh, n_faces):
     if mesh.faces.shape[0] > n_faces:
@@ -90,13 +99,15 @@ def simplify_mesh(mesh: trimesh.Trimesh, n_faces):
     else:
         return mesh
 
+
 @torch.no_grad()
-def run_triposg(self,
-    image_input: str,
-    seed: int,
-    num_inference_steps: int = 50,
-    guidance_scale: float = 7.0,
-    faces: int = -1,
+def run_triposg(
+        self,
+        image_input: str,
+        seed: int,
+        num_inference_steps: int = 50,
+        guidance_scale: float = 7.0,
+        faces: int = -1,
 ) -> tuple[trimesh.Trimesh, float]:
 
     t1 = time()
@@ -112,17 +123,20 @@ def run_triposg(self,
         num_inference_steps=num_inference_steps,
         guidance_scale=guidance_scale,
     ).samples[0]
+
     mesh = trimesh.Trimesh(outputs[0].astype(np.float32), np.ascontiguousarray(outputs[1]))
 
     if faces > 0:
         mesh = simplify_mesh(mesh, faces)
+
     t2 = time()
     total_time = (t2 - t1) / 60.0
 
     return mesh, total_time
 
+
 @chute.cord(public_api_path="/generate", method="POST", input_schema=PipeInput)
-async def generate_mesh(self, data: PipeInput) -> MeshOutput:
+async def generate_mesh(self, data: PipeInput) -> StreamingResponse:
     seed = random.randint(0, 10000)
     mesh, exec_time = run_triposg(self, image_input=data.image_path, seed=seed, faces=data.num_faces)
 
@@ -131,12 +145,23 @@ async def generate_mesh(self, data: PipeInput) -> MeshOutput:
     # mesh.export("./model.glb")
     buffer.seek(0)
 
-    return MeshOutput(
-        mesh=buffer.read()
+    size = len(buffer.getvalue())
+
+    print("Mesh vertices:", len(mesh.vertices))
+    print("Mesh faces:", len(mesh.faces))
+    print(f"Generated GLB ({size} bytes) in {exec_time} min")
+
+    return StreamingResponse(
+        buffer,
+        media_type="model/gltf-binary",
+        headers={
+            "Content-Disposition": "attachment; filename=output.glb"
+        }
     )
 
-
 # if __name__ == "__main__":
+#     import asyncio
+#
 #     asyncio.run(load_model(chute))
 #     asyncio.run(generate_mesh(
 #         chute,
