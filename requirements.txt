@@ -11,7 +11,7 @@ numpy==1.26.4
 peft==0.17.1
 jaxtyping==0.3.3
 typeguard==4.4.4
-diso==0.1.4
+#diso==0.1.4
 pymeshlab==2025.7
 torchvision==0.22.1
 matplotlib
