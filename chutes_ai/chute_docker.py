@@ -22,7 +22,7 @@ class ChuteDockerImage:
                           update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-14 100")
 
             .run_command("pip install torch==2.7.1 torchvision --index-url https://download.pytorch.org/whl/cu128")
-            .run_command("CPATH='/usr/local/cuda/include:$CPATH' pip install git+https://github.com/404-Repo/tripo-sg-generator-chutes.git")
+            .run_command("pip install git+https://github.com/404-Repo/tripo-sg-generator-chutes.git")
 
             # Set up model cache directory
             .run_command("mkdir -p /app/models")
